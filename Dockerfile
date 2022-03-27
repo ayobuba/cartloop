@@ -9,6 +9,6 @@ RUN pip install -r requirements.txt
 EXPOSE 8000
 #CMD python manage.py migrate
 #EXPOSE 8000
-#CMD python manage.py migrate
-ENTRYPOINT ["/home/src/app/cartloop.sh"]
+RUN chmod +x $DockerHome/cartloop.sh
+ENTRYPOINT ["{$DockerHome}/cartloop.sh"]
 CMD python manage.py runserver 0.0.0.0:8000
