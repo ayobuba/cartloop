@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartloop
+  labels:
+    apps: cartloop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: cartloop
+  template:
+    metadata:
+      labels:
+        component: cartloop
+    spec:
+      containers:
+        - name: cartloop
+          image: ayobuba/cartloop:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "128Mi"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: cartloop-env
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: cartloop-env
+                  key: REDIS_PORT
+#REDIS SECRETS
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cartloop-env
+data:
+  REDIS_HOST: cmVkaXM=
+  REDIS_PORT: IjYzNzki
+type: Opaque
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartloop
+  labels:
+    app: cartloop
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: cartloop
+

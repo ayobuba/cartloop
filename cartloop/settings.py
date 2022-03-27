@@ -100,7 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+# REDIS_URL = "redis"
 CACHES = {
 'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
