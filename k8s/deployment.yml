@@ -51,15 +51,82 @@ type: Opaque
 apiVersion: v1
 kind: Service
 metadata:
-  name: cartloop
   labels:
     app: cartloop
+  name: cartloop
 spec:
-  type: NodePort
-  ports:
-  - name: http
-    port: 8000
-    targetPort: 8000
+  type: LoadBalancer
   selector:
     app: cartloop
+  ports:
+    - port: 8743
+      protocol: TCP
+      name: http
+      targetPort: 8000
+
+
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  labels:
+#    app: cartloop
+#  name: cartloop
+#spec:
+#  ports:
+#  - port: 8000
+#    protocol: TCP
+#    targetPort: 8000
+#  selector:
+#    app: cartloop
+#
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: cartloop
+#spec:
+#  rules:
+#    - host: kubernetes.docker.internal
+#      http:
+#        paths:
+#          - path: /
+#            backend:
+#              service:
+#                name: cartloop
+#                port:
+#                  number: 8000
+#            pathType: Exact
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: nginx
+#  labels:
+#    app: nginx
+#spec:
+#  type: NodePort
+#  ports:
+#  - port: 8000
+#    targetPort: 8000
+#  selector:
+#    app: cartloop
+#
+#
+##---
+##apiVersion: v1
+##kind: Service
+##metadata:
+##  name: cartloop
+##  labels:
+##    app: cartloop
+##spec:
+##  type: NodePort
+##  ports:
+##  - name: http
+##    port: 8000
+##    targetPort: 8000
+##  selector:
+##    app: cartloop
+#
 
