@@ -17,6 +17,7 @@ resource "aws_spot_instance_request" "cartloop_spot_instance" {
   }
 }
 
+
 resource "aws_security_group" "k8_group" {
   name        = "Access-SG"
   description = "Allow ports and 22"
@@ -35,6 +36,14 @@ resource "aws_security_group" "k8_group" {
     from_port   = 80
     protocol    = "TCP"
     to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP"
+  }
+
+  ingress {
+    from_port   = 8000
+    protocol    = "TCP"
+    to_port     = 8000
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow HTTP"
   }
@@ -80,13 +89,12 @@ resource "null_resource" "config_minikube" {
       "sudo apt install conntrack",
       "sudo sysctl fs.protected_regular=0", #Used because no vm was set up on the instance
       "sudo minikube start --driver=none",
+      "sudo minikube addons enable ingress",
       "sudo minikube status"
     ]
-
-
   }
-
 }
+
 
 resource "null_resource" "config_deploy" {
 
@@ -114,12 +122,16 @@ resource "null_resource" "config_deploy" {
           "cd cartloop/k8s/",
           "sudo kubectl apply -f ./redis-deployment.yml",
           "sudo kubectl apply -f ./django-deployment.yml",
+          "sudo kubectl patch svc cartloop -p '{${var.spec}: {${var.type}: ${var.LoadBalancer}, ${var.externalIPs}:[${var.eip}]}}'",
           "echo Deployment is in progress status",
           "sleep 40",
           "sudo kubectl get deployments",
+          "sudo kubectl get service",
+          "sudo minikube service cartloop --url",
     ]
 
 
   }
 }
 
+#172.31.32.77
