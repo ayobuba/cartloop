@@ -128,6 +128,8 @@ resource "null_resource" "config_deploy" {
           "sudo kubectl get deployments",
           "sudo kubectl get service",
           "sudo minikube service cartloop --url",
+          "curl 44.229.233.239/api/hello_world/",
+
     ]
 
 
