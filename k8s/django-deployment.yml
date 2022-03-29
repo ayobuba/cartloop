@@ -86,22 +86,22 @@ spec:
       targetPort: http
   selector:
     app: cartloop
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: cartloop
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-spec:
-  rules:
-    - host: cartloop.info
-      http:
-        paths:
-          - backend:
-              service:
-                name: cartloop
-                port:
-                  number: 8000
-            pathType: Prefix
-            path: /
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: cartloop
+#  annotations:
+#    nginx.ingress.kubernetes.io/rewrite-target: /$1
+#spec:
+#  rules:
+#    - host: cartloop.info
+#      http:
+#        paths:
+#          - backend:
+#              service:
+#                name: cartloop
+#                port:
+#                  number: 8000
+#            pathType: Prefix
+#            path: /
