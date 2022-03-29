@@ -1,23 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    flux.weave.works/automated: "true"
   name: cartloop
-  labels:
-    apps: cartloop
 spec:
   replicas: 2
   selector:
     matchLabels:
-      component: cartloop
+      app: cartloop
   template:
     metadata:
       labels:
-        component: cartloop
+        app: cartloop
     spec:
       containers:
         - name: cartloop
           image: ayobuba/cartloop:latest
           imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - ping
+                -
           resources:
             limits:
               memory: "256Mi"
@@ -25,6 +30,7 @@ spec:
               memory: "128Mi"
           ports:
             - containerPort: 8000
+              name: http
           env:
             - name: REDIS_HOST
               valueFrom:
@@ -48,18 +54,36 @@ data:
 type: Opaque
 ---
 apiVersion: networking.k8s.io/v1
-kind: Ingress
+kind: NetworkPolicy
 metadata:
   name: cartloop
 spec:
-  rules:
-    - host: kubernetes.docker.internal
-      http:
-        paths:
-          - path: /
-            backend:
-              service:
-                name: cartloop
-                port:
-                  number: 8000
-            pathType: Exact
+  podSelector:
+    matchLabels:
+      app: cartloop
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartloop
+  labels:
+    app: cartloop
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+      targetPort: http
+  selector:
+    app: cartloop
+

@@ -2,21 +2,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
-  labels:
-    app: redis
+  name: redis-primary
 spec:
   selector:
     matchLabels:
-      component: redis
+      app: redis
+      role: primary
+      tier: backend
   replicas: 2
   template:
     metadata:
       labels:
-        component: redis
+        app: redis
+        role: primary
+        tier: backend
     spec:
       containers:
-        - name: master
+        - name: redis
           image: redis
           resources:
             requests:
@@ -28,15 +30,86 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redis-primary
   labels:
     app: redis
-    role: master
+    role: primary
     tier: backend
 spec:
   ports:
     - port: 6379       # Map incoming connections on port 6379 to the target port 6379 of the Pod
       targetPort: 6379
   selector:
-    component: redis
+    app: redis
+    role: primary
+    tier: backend
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cartloop
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-replica
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      role: replica
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: redis
+        role: replica
+        tier: backend
+    spec:
+      containers:
+        - name: replica
+          image: gcr.io/google_samples/gb-redisslave:v2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 6379
+          env:
+            - name: GET_HOST_FROM
+              value: env
+            - name: REDIS_MASTER_HOST
+              value: redis-primary
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-replica
+  labels:
+    app: redis
+    role: replica
+    tier: backend
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: redis
+    role: replica
+    tier: backend
+
+
 
