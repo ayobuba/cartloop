@@ -122,17 +122,11 @@ resource "null_resource" "config_deploy" {
           "cd cartloop/k8s/",
           "sudo kubectl apply -f ./redis-deployment.yml",
           "sudo kubectl apply -f ./django-deployment.yml",
-          "sudo kubectl patch svc cartloop -p '{${var.spec}: {${var.type}: ${var.LoadBalancer}, ${var.externalIPs}:[${var.eip}]}}'",
           "echo Deployment is in progress status",
           "sleep 40",
           "sudo kubectl get deployments",
           "sudo kubectl get service",
           "sudo minikube service cartloop --url",
-
     ]
-
-
   }
 }
-
-#172.31.32.77
