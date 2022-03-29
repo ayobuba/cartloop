@@ -14,26 +14,17 @@ spec:
       labels:
         app: cartloop
     spec:
-      initContainers:
-        - name: check-redis-ready
-          image: busybox
-          command:
-            - /bin/sh
-            - -c
-            - >
-              set -x;
-              until ((printf "PING\r\n"; sleep 1) | nc redis 6379);
-              do echo waiting for redis;
-              sleep 2; done
       containers:
         - name: cartloop
           image: ayobuba/cartloop:latest
           imagePullPolicy: Always
-#          livenessProbe:
-#            exec:
-#              command:
-#                - ping
-#                -
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - /health.sh
+            initialDelaySeconds: 60
+            periodSeconds: 100
           resources:
             limits:
               memory: "256Mi"
@@ -53,6 +44,11 @@ spec:
                 secretKeyRef:
                   name: cartloop-env
                   key: REDIS_PORT
+            - name: DJANGO_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cartloop-env
+                  key: DJANGO_SECRET
 #REDIS SECRETS
 ---
 apiVersion: v1
@@ -62,6 +58,7 @@ metadata:
 data:
   REDIS_HOST: cmVkaXM=
   REDIS_PORT: IjYzNzki
+  DJANGO_SECRET: dXMhaEB3eWtAZXVeKjc1MSQjdmNebDcoMmcpNnYtJiYyMiU0NnFseWJjd0BxbXl5K2w=
 type: Opaque
 ---
 apiVersion: networking.k8s.io/v1
