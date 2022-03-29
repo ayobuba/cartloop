@@ -18,11 +18,11 @@ spec:
         - name: cartloop
           image: ayobuba/cartloop:latest
           imagePullPolicy: Always
-          livenessProbe:
-            exec:
-              command:
-                - ping
-                -
+#          livenessProbe:
+#            exec:
+#              command:
+#                - ping
+#                -
           resources:
             limits:
               memory: "256Mi"
