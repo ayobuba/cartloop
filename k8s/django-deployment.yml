@@ -79,6 +79,8 @@ metadata:
     app: cartloop
 spec:
   type: LoadBalancer
+  externalIPs:
+    - 172.32.312.218
   ports:
     - port: 80
       name: http
