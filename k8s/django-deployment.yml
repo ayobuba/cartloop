@@ -14,6 +14,17 @@ spec:
       labels:
         app: cartloop
     spec:
+      initContainers:
+        - name: check-redis-ready
+          image: busybox
+          command:
+            - /bin/sh
+            - -c
+            - >
+              set -x;
+              until ((printf "PING\r\n"; sleep 1) | nc redis 6379);
+              do echo waiting for redis;
+              sleep 2; done
       containers:
         - name: cartloop
           image: ayobuba/cartloop:latest
