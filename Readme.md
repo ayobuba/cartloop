@@ -54,3 +54,11 @@ After successful completion of the above steps, the api would be accessible at `
 2. The Redis pod shouldn't be accessible to the world.
 3. Secrets (ex: `SECRET_KEY` in the `cartloop/settings.py`) should be retrieved from the kubernetes secrets service.
 
+
+## Deployment Steps
+1. cd terraform 
+2. Terraform init
+3. Set AWS Credentials and edit config.tf 
+4. terraform apply -auto-approve
+5. minikube IP:Port will be displayed as final output
+6. curl IP:Port/api/hello_world/
